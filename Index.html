@@ -1,0 +1,629 @@
+<!doctype html> 
+<html lang="pt-br">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no"/>
+  
+  <!-- CONFIGURAÇÕES PWA ESSENCIAIS -->
+  <meta name="theme-color" content="#1a1a1a">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="FFH4X">
+  <meta name="mobile-web-app-capable" content="yes">
+  
+  <title>FFH4X - @PDZ7Z</title>
+
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  
+  <!-- Ícone -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>">
+  <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎯</text></svg>">
+
+  <style>
+    :root {
+      --bg: #1a1a1a;
+      --panel: #262626;
+      --accent: #ffffff; /* Branco mais claro */
+      --accent-2: #e0e0e0; /* Um tom um pouco mais escuro para o gradiente */
+      --muted: #b0b0b0;
+      --glass: rgba(255,255,255,0.03);
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      -webkit-touch-callout: none;
+      -webkit-user-select: none;
+      user-select: none;
+    }
+
+    body {
+      margin: 0;
+      background: radial-gradient(circle at 10% 10%, #0d0d0d 0%, var(--bg) 40%), #000;
+      height: 100vh;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      overflow: hidden;
+    }
+
+    canvas#rain {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 420px;
+      background: linear-gradient(180deg, var(--panel), rgba(255,255,255,0.01));
+      border-radius: 14px;
+      padding: 18px;
+      border: 1px solid rgba(255,255,255,0.2);
+      box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+      backdrop-filter: blur(6px);
+      position: relative;
+      z-index: 2;
+    }
+
+    .title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo {
+      width: 48px;
+      height: 48px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      color: var(--bg); /* Texto do logo em preto para contraste */
+      font-size: 18px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 18px;
+      color: var(--accent); /* Branco para o título principal */
+    }
+
+    p.small {
+      margin: 6px 0 14px 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    input[type="password"], input[type="color"] {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.15);
+      background: var(--glass);
+      color: var(--muted);
+      outline: none;
+      font-size: 16px;
+    }
+
+    button.primary {
+      width: 100%;
+      margin-top: 12px;
+      padding: 12px;
+      border-radius: 10px;
+      border: none;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      color: var(--bg); /* Texto do botão em preto para contraste */
+      font-weight: 700;
+      cursor: pointer;
+      font-size: 16px;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .tab {
+      flex: 1;
+      padding: 10px;
+      border-radius: 10px;
+      text-align: center;
+      background: rgba(255,255,255,0.02);
+      cursor: pointer;
+      font-weight: 600;
+      color: var(--muted);
+      border: 1px solid transparent;
+    }
+
+    .tab.active {
+      background: linear-gradient(90deg, rgba(255,255,255,0.12), rgba(224,224,224,0.08));
+      border-color: rgba(255,255,255,0.18);
+      color: var(--accent);
+    }
+
+    .panel-content {
+      margin-top: 14px;
+    }
+
+    .option {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px;
+      border-radius: 10px;
+      margin-bottom: 10px;
+      background: rgba(255,255,255,0.01);
+      border: 1px solid rgba(255,255,255,0.02);
+    }
+
+    .option label {
+      font-weight: 600;
+      color: var(--muted);
+    }
+
+    .switch {
+      width: 40px;
+      height: 24px;
+      border-radius: 12px;
+      background: rgba(255,255,255,0.06);
+      position: relative;
+    }
+
+    .switch .knob {
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #fff;
+      transition: all .18s ease;
+    }
+
+    .switch.on {
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    }
+
+    .switch.on .knob {
+      left: 19px;
+      background: var(--bg); /* knob em preto para contraste */
+      box-shadow: 0 2px 6px rgba(0,0,0,0.4);
+    }
+
+    .target {
+      padding: 8px;
+      border-radius: 8px;
+      background: rgba(255,255,255,0.02);
+      font-weight: 700;
+      color: var(--accent);
+      text-align: center;
+      border: 1px dashed rgba(255,255,255,0.2);
+      position: relative;
+      cursor: pointer;
+    }
+
+    .option-item {
+      padding: 6px 8px;
+      cursor: pointer;
+      border-radius: 6px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .option-item:hover {
+      background: rgba(255,255,255,0.1);
+    }
+
+    .fov-container {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+    }
+
+    .fov-slider {
+      flex: 1;
+    }
+
+    .fov-value {
+      min-width: 50px;
+      text-align: center;
+      font-weight: 700;
+      color: var(--accent);
+      background: rgba(255,255,255,0.1);
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 12px;
+    }
+
+    .notify {
+      display: none;
+      text-align: center;
+      padding: 10px;
+      border-radius: 8px;
+      background: var(--panel);
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .copyright {
+      margin-top: 12px;
+      font-size: 12px;
+      color: var(--muted);
+      text-align: center;
+    }
+
+    .small-note {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 6px;
+    }
+
+  </style>
+</head>
+<body>
+
+<canvas id="rain"></canvas>
+
+<div class="card">
+  <div class="title">
+    <div class="logo">F</div>
+    <div>
+      <h1>FFH4X - desacat</h1>
+      <p class="small"> exe</p>
+    </div>
+  </div>
+
+  <!-- LOGIN -->
+  <div id="loginSection">
+    <div class="login-row">
+      <label for="senha">Preencha Com Sua Key:</label>
+      <input id="senha" type="password" placeholder="Senha">
+    </div>
+    <button class="primary" onclick="verificarSenha()">Entrar</button>
+    <p class="small small-note">COMPRE SUA KEY COM: <strong> sleep beija homem</strong></p>
+  </div>
+
+  <!-- PAINEL -->
+  <div id="painel" style="display:none;">
+    <div class="tabs">
+      <div id="tab1" class="tab active" onclick="setTab(1)"><i class="fas fa-crosshairs"></i></div>
+      <div id="tab2" class="tab" onclick="setTab(2)"><i class="fas fa-cog"></i></div>
+      <div id="tab3" class="tab" onclick="setTab(3)"><i class="fas fa-bullseye"></i></div>
+    </div>
+
+    <div id="content" class="panel-content">
+      <!-- TAB 1 -->
+      <div id="content1">
+        <div class="option">
+          <label>Aimbot legit</label>
+          <div class="switch" id="swAimbot" onclick="toggle('swAimbot')"><div class="knob"></div></div>
+        </div>
+
+        <div class="option">
+          <label>Precisão Full</label>
+          <div class="switch" id="swNeck" onclick="toggle('swNeck')"><div class="knob"></div></div>
+        </div>
+
+        <div class="option">
+          <label>Hs 100%</label>
+          <div class="switch" id="swHs" onclick="toggle('swHs')"><div class="knob"></div></div>
+        </div>
+
+        <div class="option">
+          <label>FOV</label>
+          <div class="fov-container">
+            <input id="fov" type="range" min="10" max="100" value="50" class="fov-slider" oninput="atualizarFOV(this.value)">
+            <span id="fovValue" class="fov-value">50%</span>
+          </div>
+        </div>
+
+        <!-- DROPDOWN DE MIRA -->
+        <div style="margin-top:8px">
+          <div class="small-note">MIRA 100%:</div>
+          <div class="target" id="targetSelect" onclick="abrirDropdown()">
+            CABEÇA
+            <div id="targetOptions" style="display:none; position:absolute; margin-top:4px; background:var(--panel); border:1px solid rgba(255,255,255,0.2); border-radius:8px; padding:4px; width:100%; z-index:10;">
+              <div class="option-item" onclick="selecionarTarget('CABEÇA')">CABEÇA</div>
+              <div class="option-item" onclick="selecionarTarget('PESCOÇO')">PESCOÇO</div>
+              <div class="option-item" onclick="selecionarTarget('PEITO')">PEITO</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- TAB 2 -->
+<div id="content2" style="display:none;">
+  <div class="option">
+    <label>NoRecoil</label>
+    <div class="switch" id="swRecoil" onclick="toggle('swRecoil')"><div class="knob"></div></div>
+  </div>
+
+  <div class="option">
+    <label>Facilitar acertos na cabeça</label>
+    <div class="switch" id="swAuto" onclick="toggle('swAuto')"><div class="knob"></div></div>
+  </div>
+
+  <div class="option">
+    <label>Aumentar Taxa</label>
+    <div class="switch" id="swSens" onclick="toggle('swSens')"><div class="knob"></div></div>
+  </div>
+
+  <!-- NOVAS FUNÇÕES ADICIONADAS -->
+  <div class="option">
+    <label>Aimlock 100%</label>
+    <div class="switch" id="swAimlock" onclick="toggle('swAimlock')"><div class="knob"></div></div>
+  </div>
+
+  <div class="option">
+    <label>Mira Calibrada</label>
+    <div class="switch" id="swMiraCalibrada" onclick="toggle('swMiraCalibrada')"><div class="knob"></div></div>
+  </div>
+</div>
+
+      <!-- TAB 3 -->  
+<div id="content3" style="display:none;">  
+  <p style="margin:0 0 8px 0">
+    Painel External.<br/>
+    Feito por <a href= target="_blank" style="color:var(--accent); text-decoration:none;"><strong>@desacat
+    z</strong></a
+  </p>  
+  <p style="margin:0;font-size:13px;color:var(--muted)">
+    Direitos autorais © <strong>desacat</strong> — Todos os direitos reservados.
+  </p>  
+  <p style="margin-top:8px;font-size:12px;color:var(--muted)">
+     
+  </p>  
+
+  <!-- PALETA DE CORES ADICIONADA AQUI (TAB 3) -->
+  <div class="option" style="margin-top:12px;">
+    <label>Cor da Chuva:</label>
+    <input type="color" id="colorPicker" value="#ffffff" onchange="alterarCor(this.value)">
+  </div>
+</div>
+   
+    <div class="inject-wrap">
+      <button class="primary" onclick="abrirFreeFire()">INJETAR FUNÇÕES NO JOGO</button>
+      <div id="notify" class="notify">Abrindo Free Fire...</div>
+      <div class="copyright">©️ desacato melhor desenvolvedor</div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // --- Lista de senhas válidas (adicione ou remova aqui) ---
+const VALID_KEYS = [
+  "7",
+  "777",
+  "betinha",
+  "isagay"
+];
+
+// Verifica a senha (case-insensitive)
+function verificarSenha(){
+  const v = document.getElementById('senha').value.trim();
+  if (!v) {
+    alert('Digite a senha.');
+    return;
+  }
+
+  // compara sem diferenciar maiúsculas/minúsculas
+  const normalized = v.toUpperCase();
+  const allowedNormalized = VALID_KEYS.map(k => k.toUpperCase());
+
+  if (allowedNormalized.includes(normalized)) {
+    document.getElementById('loginSection').style.display = 'none';
+    document.getElementById('painel').style.display = 'block';
+  } else {
+    alert('Senha incorreta! Tente novamente.');
+  }
+}
+
+  function setTab(i){
+    for (let t = 1; t <= 3; t++){
+      document.getElementById('tab' + t).classList.remove('active');
+      document.getElementById('content' + t).style.display = 'none';
+    }
+    document.getElementById('tab' + i).classList.add('active');
+    document.getElementById('content' + i).style.display = 'block';
+  }
+
+  function toggle(id){
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.toggle('on');
+
+  // Mensagens customizadas para cada switch
+  const messages = {
+    'swAimbot': 'Aimbot Legit ' + (el.classList.contains('on') ? 'Ativado' : 'Desativado'),
+    'swNeck': 'Precisão Full ' + (el.classList.contains('on') ? 'Ativada' : 'Desativada'),
+    'swHs': 'HS 100% ' + (el.classList.contains('on') ? 'Ativado' : 'Desativado'),
+    'swRecoil': 'NoRecoil ' + (el.classList.contains('on') ? 'Ativado' : 'Desativado'),
+    'swAuto': 'Facilitar acertos na cabeça ' + (el.classList.contains('on') ? 'Ativado' : 'Desativado'),
+    'swSens': 'Aumentar Taxa ' + (el.classList.contains('on') ? 'Ativada' : 'Desativada'),
+    'swAimlock': 'Aimlock 100% ' + (el.classList.contains('on') ? 'Ativado' : 'Desativado'),
+    'swMiraCalibrada': 'Mira Calibrada ' + (el.classList.contains('on') ? 'Ativada' : 'Desativada')
+  };
+
+  if (messages[id]) showNotification(messages[id]);
+}
+
+// Função para mostrar notificações temporárias
+function showNotification(msg) {
+  const n = document.getElementById('notify');
+  n.textContent = msg;
+  n.style.display = 'block';
+  setTimeout(() => {
+    n.style.display = 'none';
+  }, 1500); // tempo de exibição em ms
+}
+
+  function atualizarFOV(valor) {
+    document.getElementById('fovValue').textContent = valor + '%';
+  }
+
+  // Função Free Fire completa
+  function abrirFreeFire() {
+    const n = document.getElementById('notify');
+    n.style.display = 'block';
+    n.textContent = 'Abrindo Free Fire...';
+    
+    const freeFireLinks = [
+      'freefire://',
+      'intent://com.dts.freefireth#Intent;scheme=freefire;package=com.dts.freefireth;end',
+      'intent://com.dts.freefireth/com.dts.freefireth.FFMainActivity#Intent;scheme=freefire;package=com.dts.freefireth;end',
+      'com.dts.freefireth://',
+      'freefire://com.dts.freefireth'
+    ];
+    
+    let opened = false;
+    
+    for (let link of freeFireLinks) {
+      try {
+        const a = document.createElement('a');
+        a.href = link;
+        a.style.display = 'none';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        opened = true;
+        break;
+      } catch (e) {
+        console.log('Erro ao tentar abrir link:', link);
+      }
+    }
+
+    if (!opened) {
+      alert('Não foi possível abrir o Free Fire. Certifique-se que o jogo está instalado.');
+    }
+
+    setTimeout(() => {
+      n.style.display = 'none';
+    }, 2500);
+  }
+
+  // DROPDOWN DE TARGET
+  function abrirDropdown() {
+    const opts = document.getElementById('targetOptions');
+    opts.style.display = opts.style.display === 'block' ? 'none' : 'block';
+  }
+
+  function selecionarTarget(txt) {
+    // atualiza corretamente o texto visível do targetSelect
+    const sel = document.getElementById('targetSelect');
+    // primeiro nó textual (antes do menu)
+    if (sel && sel.firstChild) sel.firstChild.textContent = txt;
+    document.getElementById('targetOptions').style.display = 'none';
+  }
+
+  // --- ANIMAÇÃO DE CHUVA (mantida) ---
+  const canvas = document.getElementById('rain');
+  const ctx = canvas.getContext('2d');
+  let W = canvas.width = window.innerWidth;
+  let H = canvas.height = window.innerHeight;
+
+  const drops = [];
+  for(let i = 0; i < 150; i++) {
+    drops.push({
+      x: Math.random()*W,
+            y: Math.random()*H,
+      l: Math.random()*1,
+      xs: -4 + Math.random()*4 + 2,
+      ys: Math.random()*10 + 10
+    });
+  }
+
+  // Converte valor CSS (hex ou rgb) pra rgba com alpha
+  function parseCssColorToRgba(cssColor, alpha) {
+    if (!cssColor) return `rgba(255,255,255,${alpha})`; // Cor padrão para chuva branca
+    cssColor = cssColor.trim();
+    // se for algo como 'rgb(...)' ou 'rgba(...)' retorna com alpha trocado
+    if (cssColor.startsWith('rgb')) {
+      const nums = cssColor.replace(/[^\d,]/g, '').split(',');
+      if (nums.length >= 3) return `rgba(${nums[0]},${nums[1]},${nums[2]},${alpha})`;
+    }
+    // se for hex (#rrggbb)
+    if (cssColor.startsWith('#')) {
+      let hex = cssColor.slice(1);
+      if (hex.length === 3) {
+        hex = hex.split('').map(h => h + h).join('');
+      }
+      const r = parseInt(hex.slice(0,2),16);
+      const g = parseInt(hex.slice(2,4),16);
+      const b = parseInt(hex.slice(4,6),16);
+      return `rgba(${r},${g},${b},${alpha})`;
+    }
+    // fallback
+    return `rgba(255,255,255,${alpha})`;
+  }
+
+  function draw() {
+    ctx.clearRect(0,0,W,H);
+    // pega a --accent atual ou a cor definida no colorPicker para a chuva
+    const rainColor = document.getElementById('colorPicker') ? document.getElementById('colorPicker').value : '#ffffff';
+    ctx.strokeStyle = parseCssColorToRgba(rainColor, 0.5);
+    ctx.lineWidth = 1;
+    ctx.lineCap = 'round';
+
+    for(let i = 0; i < drops.length; i++){
+      const d = drops[i];
+      ctx.beginPath();
+      ctx.moveTo(d.x,d.y);
+      ctx.lineTo(d.x + d.l*d.xs, d.y + d.l*d.ys);
+      ctx.stroke();
+
+      d.x += d.xs;
+      d.y += d.ys;
+
+      if(d.x > W || d.y > H){
+        d.x = Math.random()*W;
+        d.y = -20;
+      }
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+
+  window.addEventListener('resize', () => {
+    W = canvas.width = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  });
+
+  // FUNÇÃO DE MUDANÇA DE COR (TAB 3)
+  function alterarCor(cor){
+    // Este `alterarCor` agora atualiza apenas a cor da chuva.
+    // As cores gerais do painel são fixas em preto e branco.
+    // A chuva pegará o valor do input diretamente no `draw`.
+  }
+
+  // A função shadeColor não é mais necessária para as cores principais do painel.
+  // Será usada apenas se o colorPicker da chuva precisar de variações.
+  function shadeColor(hex, percent) {
+    try {
+      let col = hex.replace('#','');
+      if (col.length === 3) col = col.split('').map(c => c + c).join('');
+      const num = parseInt(col,16);
+      let r = (num >> 16) + Math.round((percent/100)*255);
+      let g = (num >> 8 & 0x00FF) + Math.round((percent/100)*255);
+      let b = (num & 0x0000FF) + Math.round((percent/100)*255);
+      r = Math.max(0, Math.min(255, r));
+      g = Math.max(0, Math.min(255, g));
+      b = Math.max(0, Math.min(255, b));
+      return '#' + ( (1<<24) + (r<<16) + (g<<8) + b ).toString(16).slice(1);
+    } catch (e) {
+      return hex;
+    }
+  }
+
+</script>
+
+</body>
+</html>
